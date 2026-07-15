@@ -183,17 +183,17 @@ OWNER
 
 <input 
 id="code"
-placeholder="Masukkan PAIRING ID didapat dari owner">
+placeholder="Masukkan ID akses, ada di owner!">
 
 
 <button onclick="connect()">
-CONNECT
+LOGIN
 </button>
 
 
 <div class="info" id="info">
 
-Menunggu ID...
+Menunggu...
 
 </div>
 
@@ -264,7 +264,7 @@ let code=document.getElementById("code").value.trim();
 if(!code){
 
 document.getElementById("info").innerHTML=
-"Masukkan Pairing ID";
+"Masukkan ID akses!";
 
 return;
 
@@ -311,7 +311,7 @@ document.getElementById("connectStatus").innerHTML=
 
 
 document.getElementById("info").innerHTML=
-"❌ Pairing ID tidak ditemukan";
+"❌ ID tidak ditemukan";
 
 
 }
