@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PIXEL WARFARE UPDATE MULTIPLAYER</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#4b0082,#ff1493);
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    padding:20px;
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.box{
+    background:rgba(0,0,0,.3);
+    margin:20px;
+    padding:20px;
+    border-radius:20px;
+    backdrop-filter:blur(10px);
+}
+
+input,button{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border:none;
+    border-radius:15px;
+    font-size:16px;
+}
+
+input{
+    background:white;
+}
+
+button{
+    background:#00ffcc;
+    color:#111;
+    font-weight:bold;
+}
+
+.profile{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.avatar{
+    width:60px;
+    height:60px;
+    background:#fff;
+    color:#ff1493;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:30px;
+}
+
+.status{
+    margin-top:15px;
+    padding:12px;
+    background:rgba(255,255,255,.2);
+    border-radius:12px;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="header">
+🎮 PIXEL WARFARE
+</div>
+
+
+<div class="box">
+
+<div class="profile">
+
+<div class="avatar">
+😎
+</div>
+
+<div>
+<h3>Player</h3>
+<p id="connectStatus">
+Belum terhubung
+</p>
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="box">
+
+<h3>
+🔗 Join Room
+</h3>
+
+<input 
+id="code"
+placeholder="Masukkan kode CP-xxxxxx">
+
+
+<button onclick="connect()">
+Connect
+</button>
+
+
+<div class="status" id="info">
+Menunggu kode...
+</div>
+
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+getDatabase,
+ref,
+get,
+update
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+const firebaseConfig={
+
+apiKey:"AIzaSyCnGnqV6fKvO3XDLBucrsIYPjGuafTun7g",
+
+authDomain:"rat-jancok.firebaseapp.com",
+
+databaseURL:
+"https://rat-jancok-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+projectId:"rat-jancok",
+
+storageBucket:"rat-jancok.firebasestorage.app",
+
+messagingSenderId:"832199244613",
+
+appId:"1:832199244613:web:d40428c4fd6e73d37d1c2c"
+
+};
+
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+
+
+window.connect=async function(){
+
+let code=document.getElementById("code").value;
+
+
+const room=ref(db,"sessions/"+code);
+
+
+const snap=await get(room);
+
+
+if(snap.exists()){
+
+
+await update(room,{
+
+connected:true,
+
+child:{
+
+status:"Online",
+
+joined:Date.now()
+
+}
+
+});
+
+
+document.getElementById("info").innerHTML=
+"✅ Berhasil terhubung";
+
+
+document.getElementById("connectStatus").innerHTML=
+"Connected";
+
+
+}else{
+
+
+document.getElementById("info").innerHTML=
+"❌ Kode tidak ditemukan";
+
+
+}
+
+
+}
+
+
+</script>
+
+
+</body>
+  </html>
