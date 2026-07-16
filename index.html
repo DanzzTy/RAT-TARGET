@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>DARKVERSE V5</title>
+
+<style>
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+margin:0;
+background:#050505;
+color:white;
+}
+
+.header{
+padding:20px;
+background:#120000;
+border-bottom:1px solid red;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+color:#ff3344;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:#111;
+border:1px solid #ff3344;
+border-radius:18px;
+padding:18px;
+margin-bottom:15px;
+}
+
+.title{
+color:#ff3344;
+margin-bottom:12px;
+}
+
+input,button{
+width:100%;
+padding:13px;
+border-radius:10px;
+margin-top:10px;
+}
+
+input{
+background:#080808;
+border:1px solid #444;
+color:white;
+}
+
+button{
+background:#d9002b;
+border:0;
+color:white;
+font-weight:bold;
+}
+
+.status{
+display:flex;
+gap:10px;
+align-items:center;
+}
+
+.dot{
+width:12px;
+height:12px;
+background:red;
+border-radius:50%;
+}
+
+.online{
+background:#00ff66;
+}
+
+.chat{
+height:180px;
+overflow:auto;
+background:#080808;
+padding:10px;
+border-radius:10px;
+}
+
+.msg{
+padding:8px;
+margin:5px 0;
+background:#222;
+border-radius:8px;
+}
+
+.hidden{
+display:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+DARKVERSE V5
+</div>
+
+<div class="container">
+
+
+<div class="card" id="pairPage">
+
+<div class="title">
+ACCESS REQUIRED
+</div>
+
+<input id="pairInput" placeholder="Masukkan ID akses!">
+
+<button id="pairBtn">
+CONNECT
+</button>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="title">
+DEVICE STATUS
+</div>
+
+<div class="status">
+
+<div class="dot" id="statusDot"></div>
+
+<span id="statusText">
+Offline
+</span>
+
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="title">
+REQUEST CENTER
+</div>
+
+<div id="requestBox">
+Tidak ada permintaan
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="title">
+CHAT OWNER
+</div>
+
+<div class="chat" id="chatBox">
+</div>
+
+<input id="chatInput" placeholder="Tulis pesan">
+
+<button id="sendBtn">
+Kirim
+</button>
+
+</div>
+
+
+</div>
+
+
+<script type="module">
+
+/* =====================
+firebase.js
+===================== */
+
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+set,
+get,
+onValue,
+push
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+const firebaseConfig={
+
+apiKey:"AIzaSyCnGnqV6fKvO3XDLBucrsIYPjGuafTun7g",
+
+authDomain:"rat-jancok.firebaseapp.com",
+
+databaseURL:
+"https://rat-jancok-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+projectId:"rat-jancok",
+
+storageBucket:"rat-jancok.firebasestorage.app",
+
+messagingSenderId:"832199244613",
+
+appId:"1:832199244613:web:d40428c4fd6e73d37d1c2c"
+
+};
+
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+
+
+/* =====================
+pairing.js
+===================== */
+
+
+let pairID=null;
+
+
+document
+.getElementById("pairBtn")
+.onclick=async()=>{
+
+
+let id=
+document
+.getElementById("pairInput")
+.value.trim();
+
+
+if(!id){
+
+alert("Masukkan ID akses!");
+
+return;
+
+}
+
+
+let check=
+await get(ref(db,"pairings/"+id));
+
+
+if(!check.exists()){
+
+alert("ID tidak ditemukan");
+
+return;
+
+}
+
+
+pairID=id;
+
+
+await set(
+ref(db,"pairings/"+id+"/child"),
+{
+
+status:"online",
+
+device:"DEVONAX CHILD",
+
+time:Date.now()
+
+}
+
+);
+
+
+updateStatus(true);
+
+
+loadRequests();
+
+loadChat();
+
+
+};
+
+
+
+function updateStatus(state){
+
+document
+.getElementById("statusText")
+.innerText=
+state?"Online":"Offline";
+
+
+if(state)
+
+document
+.getElementById("statusDot")
+.classList.add("online");
+
+}
+
+
+
+/* =====================
+request.js
+===================== */
+
+
+function loadRequests(){
+
+
+onValue(
+ref(db,"requests/"+pairID),
+
+snap=>{
+
+
+let data=snap.val();
+
+
+let box=
+document.getElementById("requestBox");
+
+
+if(!data){
+
+box.innerHTML=
+"Tidak ada permintaan";
+
+return;
+
+}
+
+
+let html="";
+
+
+Object.keys(data)
+.forEach(key=>{
+
+
+let r=data[key];
+
+
+html+=`
+
+<div class="msg">
+
+${r.type}
+
+<br>
+
+Status:
+${r.status}
+
+</div>
+
+`;
+
+});
+
+
+box.innerHTML=html;
+
+
+});
+
+
+}
+
+
+
+/* =====================
+chat.js
+===================== */
+
+
+function loadChat(){
+
+
+onValue(
+ref(db,"chat/"+pairID),
+
+snap=>{
+
+
+let box=
+document.getElementById("chatBox");
+
+
+box.innerHTML="";
+
+
+let data=snap.val();
+
+
+if(data){
+
+Object.values(data)
+.forEach(m=>{
+
+
+box.innerHTML+=`
+
+<div class="msg">
+
+${m.sender}: ${m.text}
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+});
+
+
+}
+
+
+
+document
+.getElementById("sendBtn")
+.onclick=()=>{
+
+
+if(!pairID)return;
+
+
+let text=
+document
+.getElementById("chatInput")
+.value;
+
+
+if(!text)return;
+
+
+push(
+ref(db,"chat/"+pairID),
+
+{
+
+sender:"child",
+
+text:text,
+
+time:Date.now()
+
+}
+
+);
+
+
+document
+.getElementById("chatInput")
+.value="";
+
+
+};
+
+
+
+/* =====================
+dashboard.js
+===================== */
+
+
+window.addEventListener("beforeunload",()=>{
+
+
+if(pairID){
+
+set(
+ref(db,"pairings/"+pairID+"/child"),
+
+{
+
+status:"offline",
+
+time:Date.now()
+
+}
+
+);
+
+}
+
+
+});
+
+
+</script>
+
+
+</body>
+</html>
