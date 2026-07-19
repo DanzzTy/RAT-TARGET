@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>DEVONAX • PERMISSIONS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Orbitron',sans-serif;
+}
+
+body{
+
+background:#060606;
+color:#fff;
+padding:20px;
+padding-bottom:90px;
+
+}
+
+body::before{
+
+content:"";
+
+position:fixed;
+
+inset:0;
+
+background:
+
+radial-gradient(circle at top left,#ff202015,transparent 35%),
+
+radial-gradient(circle at bottom right,#ff202015,transparent 35%);
+
+pointer-events:none;
+
+}
+
+.grid{
+
+position:fixed;
+
+inset:0;
+
+opacity:.05;
+
+background-image:
+
+linear-gradient(#ff2020 1px,transparent 1px),
+
+linear-gradient(90deg,#ff2020 1px,transparent 1px);
+
+background-size:35px 35px;
+
+pointer-events:none;
+
+}
+
+.logo{
+
+display:flex;
+
+justify-content:center;
+
+margin:20px 0;
+
+}
+
+.logo img{
+
+width:72px;
+
+height:72px;
+
+border-radius:50%;
+
+border:2px solid #ff2020;
+
+object-fit:cover;
+
+}
+
+h2{
+
+text-align:center;
+
+letter-spacing:3px;
+
+margin-bottom:5px;
+
+}
+
+.subtitle{
+
+text-align:center;
+
+font-size:11px;
+
+color:#999;
+
+margin-bottom:25px;
+
+}
+
+.permission{
+
+background:#141414;
+
+border:1px solid #333;
+
+border-radius:20px;
+
+padding:18px;
+
+margin-bottom:15px;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+.left{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+}
+
+.left span{
+
+font-size:34px;
+
+color:#ff3030;
+
+}
+
+.title{
+
+font-size:14px;
+
+margin-bottom:4px;
+
+}
+
+.desc{
+
+font-size:10px;
+
+color:#888;
+
+}
+
+button{
+
+width:100px;
+
+height:42px;
+
+border:none;
+
+border-radius:12px;
+
+background:#ff2020;
+
+color:#fff;
+
+font-weight:700;
+
+cursor:pointer;
+
+}
+
+.next{
+
+margin-top:25px;
+
+width:100%;
+
+height:58px;
+
+font-size:14px;
+
+letter-spacing:2px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="grid"></div>
+
+<div class="logo">
+
+<img src="img/logo.png">
+
+</div>
+
+<h2>PERMISSIONS</h2>
+
+<div class="subtitle">
+
+Aktifkan izin yang diperlukan.
+
+</div>
+
+<div class="permission">
+
+<div class="left">
+
+<span class="material-symbols-outlined">
+
+location_on
+
+</span>
+
+<div>
+
+<div class="title">
+
+Lokasi
+
+</div>
+
+<div class="desc">
+
+Berbagi lokasi saat Anda mengizinkannya.
+
+</div>
+
+</div>
+
+</div>
+
+<button id="locationBtn">
+
+IZINKAN
+
+</button>
+
+</div>
+
+<div class="permission">
+
+<div class="left">
+
+<span class="material-symbols-outlined">
+
+photo_camera
+
+</span>
+
+<div>
+
+<div class="title">
+
+Kamera
+
+</div>
+
+<div class="desc">
+
+Digunakan saat Anda memilih memakai kamera.
+
+</div>
+
+</div>
+
+</div>
+
+<button id="cameraBtn">
+
+IZINKAN
+
+</button>
+
+</div>
+
+<div class="permission">
+
+<div class="left">
+
+<span class="material-symbols-outlined">
+
+notifications
+
+</span>
+
+<div>
+
+<div class="title">
+
+Notifikasi
+
+</div>
+
+<div class="desc">
+
+Menerima pemberitahuan dari aplikasi.
+
+</div>
+
+</div>
+
+</div>
+
+<button id="notifyBtn">
+
+IZINKAN
+
+</button>
+
+</div>
+
+<button class="next" id="finishBtn">
+
+LANJUTKAN
+
+</button>
+
+<script type="module">
+
+const locationBtn=document.getElementById("locationBtn");
+
+const cameraBtn=document.getElementById("cameraBtn");
+
+const notifyBtn=document.getElementById("notifyBtn");
+
+const finishBtn=document.getElementById("finishBtn");
+
+let permission={
+
+location:false,
+
+camera:false,
+
+notification:false
+
+};
+
+/* ===== LOCATION ===== */
+
+locationBtn.onclick=()=>{
+
+if(!navigator.geolocation){
+
+alert("Browser tidak mendukung lokasi.");
+
+return;
+
+}
+
+navigator.geolocation.getCurrentPosition(
+
+(pos)=>{
+
+permission.location=true;
+
+locationBtn.innerText="DIIZINKAN";
+
+locationBtn.style.background="#1faa59";
+
+},
+
+(err)=>{
+
+alert("Izin lokasi ditolak.");
+
+}
+
+);
+
+};
+
+/* ===== CAMERA ===== */
+
+cameraBtn.onclick=async()=>{
+
+try{
+
+const stream=await navigator.mediaDevices.getUserMedia({
+
+video:true
+
+});
+
+stream.getTracks().forEach(track=>track.stop());
+
+permission.camera=true;
+
+cameraBtn.innerText="DIIZINKAN";
+
+cameraBtn.style.background="#1faa59";
+
+}catch(e){
+
+alert("Izin kamera ditolak.");
+
+}
+
+};
+
+/* ===== NOTIFICATION ===== */
+
+notifyBtn.onclick=async()=>{
+
+if(!("Notification" in window)){
+
+alert("Browser tidak mendukung notifikasi.");
+
+return;
+
+}
+
+const result=await Notification.requestPermission();
+
+if(result==="granted"){
+
+permission.notification=true;
+
+notifyBtn.innerText="DIIZINKAN";
+
+notifyBtn.style.background="#1faa59";
+
+}else{
+
+alert("Notifikasi ditolak.");
+
+}
+
+};
+
+/* ===== FINISH ===== */
+
+finishBtn.onclick=()=>{
+
+localStorage.setItem(
+
+"childPermission",
+
+JSON.stringify(permission)
+
+);
+
+location.href="dashboard.html";
+
+};
+
+</script>
+
+</body>
+</html>
