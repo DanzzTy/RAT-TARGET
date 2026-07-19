@@ -332,3 +332,98 @@ DARKVERSE NEW EDITION
 </div>
 
   </div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+get,
+update,
+serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig={
+
+apiKey:"AIzaSyAV5qFI5J0cZd0eg2Q6mhEZ0KEiR1URv1c",
+
+authDomain:"project-coding-gabut.firebaseapp.com",
+
+databaseURL:"https://project-coding-gabut-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+projectId:"project-coding-gabut",
+
+storageBucket:"project-coding-gabut.firebasestorage.app",
+
+messagingSenderId:"234910334669",
+
+appId:"1:234910334669:web:5203c9e9ce22a596f2b384"
+
+};
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+const input=document.getElementById("pairingInput");
+
+const status=document.getElementById("status");
+
+const button=document.getElementById("connectBtn");
+
+button.onclick=async()=>{
+
+const pairingId=input.value.trim().toUpperCase();
+
+if(pairingId.length<8){
+
+status.textContent="Pairing ID tidak valid.";
+
+return;
+
+}
+
+status.textContent="Memverifikasi...";
+
+const snap=await get(ref(db,"pairing/"+pairingId));
+
+if(!snap.exists()){
+
+status.textContent="Pairing ID tidak ditemukan.";
+
+return;
+
+}
+
+await update(ref(db,"pairing/"+pairingId),{
+
+connected:true,
+
+deviceName:navigator.userAgent,
+
+platform:navigator.platform,
+
+language:navigator.language,
+
+lastSeen:Date.now()
+
+});
+
+localStorage.setItem("pairingId",pairingId);
+
+status.textContent="Berhasil terhubung.";
+
+setTimeout(()=>{
+
+location.href="permissions.html";
+
+},1000);
+
+};
+
+</script>
+
+</body>
+</html>
